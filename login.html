@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login – Aurum Capital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--gold:#c9a84c;--gold2:#e8c97a;--dark:#080810;--dark2:#0f0f1e;--dark3:#16162a;--text:#e8e4d8;--muted:#7a7a9a;--border:rgba(201,168,76,0.2);--green:#4caf89;--red:#e05a5a;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Jost',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;display:flex;overflow:hidden;}
+    .left{flex:1;background:var(--dark2);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;padding:3rem;position:relative;overflow:hidden;}
+    .left-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 60%,rgba(201,168,76,0.06) 0%,transparent 60%);}
+    .left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.03) 1px,transparent 1px);background-size:60px 60px;}
+    .left-content{position:relative;z-index:1;}
+    .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);letter-spacing:4px;display:block;margin-bottom:0.3rem;}
+    .brand-sub{font-size:0.65rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;}
+    .left-hero{margin-top:4rem;}
+    .left-hero h1{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;line-height:1.1;margin-bottom:1.5rem;}
+    .left-hero h1 em{font-style:italic;color:var(--gold);}
+    .left-hero p{font-size:0.88rem;color:var(--muted);line-height:1.9;max-width:360px;font-weight:300;}
+    .left-stats{display:flex;gap:3rem;position:relative;z-index:1;}
+    .ls-item .num{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);font-weight:600;}
+    .ls-item .lbl{font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+    .left-footer{font-size:0.68rem;color:var(--muted);letter-spacing:1px;position:relative;z-index:1;}
+    .right{width:460px;display:flex;align-items:center;justify-content:center;padding:2rem;flex-shrink:0;}
+    .login-box{width:100%;max-width:380px;animation:fadeUp 0.7s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .login-box h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;margin-bottom:0.4rem;letter-spacing:1px;}
+    .login-box p{font-size:0.78rem;color:var(--muted);letter-spacing:1px;margin-bottom:2.5rem;}
+    .gold-line{width:40px;height:1px;background:var(--gold);margin-bottom:2.5rem;}
+    .fg{margin-bottom:1.3rem;}
+    .fg label{display:block;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
+    .input-wrap{position:relative;display:flex;align-items:center;}
+    .input-icon{position:absolute;left:0.9rem;color:var(--muted);font-size:0.9rem;pointer-events:none;}
+    .fg input{width:100%;background:var(--dark2);border:1px solid var(--border);color:var(--text);padding:0.85rem 1rem 0.85rem 2.6rem;font-size:0.9rem;outline:none;transition:border-color 0.3s,box-shadow 0.3s;font-family:'Jost',sans-serif;}
+    .fg input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.08);}
+    .fg input.err{border-color:var(--red);animation:shake 0.4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
+    .eye{position:absolute;right:0.9rem;background:none;border:none;cursor:pointer;color:var(--muted);transition:color 0.2s;font-size:0.9rem;}
+    .eye:hover{color:var(--gold);}
+    .err-box{background:rgba(224,90,90,0.08);border:1px solid rgba(224,90,90,0.25);padding:0.7rem 1rem;font-size:0.78rem;color:var(--red);margin-bottom:1.2rem;display:none;align-items:center;gap:0.5rem;}
+    .err-box.show{display:flex;}
+    .remember{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;font-size:0.78rem;}
+    .remember label{display:flex;align-items:center;gap:0.5rem;cursor:pointer;color:var(--muted);}
+    .remember input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;}
+    .forgot{color:var(--gold);text-decoration:none;font-size:0.75rem;letter-spacing:1px;}
+    .submit-btn{width:100%;background:var(--gold);color:var(--dark);border:none;padding:1rem;font-size:0.78rem;letter-spacing:3px;text-transform:uppercase;font-weight:600;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.3s;position:relative;overflow:hidden;}
+    .submit-btn:hover{background:var(--gold2);transform:translateY(-1px);}
+    .submit-btn.loading{pointer-events:none;opacity:0.7;}
+    .submit-btn .btn-txt{transition:opacity 0.2s;}
+    .submit-btn .spinner{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;border:2px solid rgba(8,8,16,0.3);border-top-color:var(--dark);animation:spin 0.7s linear infinite;}
+    .submit-btn.loading .btn-txt{opacity:0;}
+    .submit-btn.loading .spinner{display:block;}
+    @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+    .hint{margin-top:1.5rem;background:rgba(201,168,76,0.05);border:1px solid var(--border);padding:1rem;font-size:0.75rem;color:var(--muted);line-height:1.8;letter-spacing:0.5px;}
+    .hint strong{color:var(--gold);}
+    .attempts-txt{text-align:center;font-size:0.72rem;color:var(--muted);margin-top:0.7rem;letter-spacing:1px;display:none;}
+    .attempts-txt.show{display:block;}
+    .locked{display:none;text-align:center;padding:1rem 0;}
+    .locked.show{display:block;}
+    .lock-ico{font-size:2.5rem;margin-bottom:1rem;}
+    .lock-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold);margin-bottom:0.5rem;}
+    .lock-msg{font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;}
+    .countdown{font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold);}
+    .login-footer{margin-top:2rem;font-size:0.65rem;color:var(--muted);letter-spacing:1px;text-align:center;line-height:1.8;}
+    @media(max-width:768px){.left{display:none;}.right{width:100%;}}
+  </style>
+</head>
+<body>
+<div class="left">
+  <div class="left-bg"></div><div class="left-grid"></div>
+  <div class="left-content">
+    <div><span class="brand">AURUM CAPITAL</span><span class="brand-sub">Investment Group</span></div>
+    <div class="left-hero">
+      <h1>Manage Your<br/><em>Empire</em><br/>From Here</h1>
+      <p>Access the full suite of portfolio management, client oversight, and reporting tools — all in one secure dashboard.</p>
+    </div>
+  </div>
+  <div>
+    <div class="left-stats">
+      <div class="ls-item"><div class="num">$2.4B</div><div class="lbl">Total AUM</div></div>
+      <div class="ls-item"><div class="num">1,247</div><div class="lbl">Active Clients</div></div>
+      <div class="ls-item"><div class="num">18.7%</div><div class="lbl">Avg. Return</div></div>
+    </div>
+    <div class="left-footer" style="margin-top:2rem;">© 2024 Aurum Capital Group · Regulated · Insured</div>
+  </div>
+</div>
+
+<div class="right">
+  <div class="login-box">
+    <h2>Admin Access</h2>
+    <p>Authorized Personnel Only</p>
+    <div class="gold-line"></div>
+    <div class="locked" id="locked">
+      <div class="lock-ico">🔒</div>
+      <div class="lock-title">Access Locked</div>
+      <div class="lock-msg">Too many failed attempts.<br/>Please wait before trying again.</div>
+      <div class="countdown" id="countdown">0:30</div>
+    </div>
+    <div id="loginForm">
+      <div class="err-box" id="errBox">⚠ &nbsp;<span id="errTxt">Invalid credentials.</span></div>
+      <div class="fg">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">◈</span>
+          <input type="text" id="username" placeholder="Enter username" autocomplete="username"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">◆</span>
+          <input type="password" id="password" placeholder="Enter password" autocomplete="current-password"/>
+          <button class="eye" type="button" onclick="togglePwd()" id="eyeBtn">👁</button>
+        </div>
+      </div>
+      <div class="remember">
+        <label><input type="checkbox" id="remember"/> Remember me</label>
+        <a href="#" class="forgot" onclick="forgotPwd()">Forgot password?</a>
+      </div>
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+        <span class="btn-txt">Sign In</span>
+        <span class="spinner"></span>
+      </button>
+      <div class="attempts-txt" id="attemptsTxt"></div>
+      <div class="hint">Default credentials —<br/>Username: <strong>admin</strong> &nbsp;·&nbsp; Password: <strong>admin123</strong><br/><span style="font-size:0.68rem;">Change these in Settings after first login.</span></div>
+    </div>
+    <div class="login-footer">Secure 256-bit encrypted connection<br/>Unauthorized access is prohibited and monitored</div>
+  </div>
+</div>
+
+<script>
+  const USER='admin',PASS='admin123',MAX=3,LOCK=30;
+  let attempts=0,locked=false;
+  window.onload=()=>{const s=localStorage.getItem('aurumUser');if(s){document.getElementById('username').value=s;document.getElementById('remember').checked=true;}};
+  function doLogin(){
+    if(locked)return;
+    const u=document.getElementById('username').value.trim();
+    const p=document.getElementById('password').value;
+    const btn=document.getElementById('loginBtn');
+    hideErr();
+    document.getElementById('username').classList.remove('err');
+    document.getElementById('password').classList.remove('err');
+    if(!u){document.getElementById('username').classList.add('err');showErr('Please enter your username.');return;}
+    if(!p){document.getElementById('password').classList.add('err');showErr('Please enter your password.');return;}
+    btn.classList.add('loading');
+    setTimeout(()=>{
+      btn.classList.remove('loading');
+      if(u===USER&&p===PASS){
+        if(document.getElementById('remember').checked){localStorage.setItem('aurumUser',u);}else{localStorage.removeItem('aurumUser');}
+        sessionStorage.setItem('aurumAdmin','true');
+        btn.querySelector('.btn-txt').textContent='✦ ACCESS GRANTED';
+        btn.style.background='var(--green)';
+        setTimeout(()=>{window.location.href='admin.html';},900);
+      }else{
+        attempts++;
+        document.getElementById('username').classList.add('err');
+        document.getElementById('password').classList.add('err');
+        document.getElementById('password').value='';
+        const rem=MAX-attempts;
+        if(attempts>=MAX){lockout();}else{
+          showErr('Incorrect username or password.');
+          const el=document.getElementById('attemptsTxt');
+          el.classList.add('show');
+          el.textContent=`${rem} attempt${rem!==1?'s':''} remaining before lockout`;
+        }
+      }
+    },1200);
+  }
+  function lockout(){
+    locked=true;
+    document.getElementById('loginForm').style.display='none';
+    document.getElementById('locked').classList.add('show');
+    let s=LOCK;
+    const el=document.getElementById('countdown');
+    const t=setInterval(()=>{s--;el.textContent=`0:${s.toString().padStart(2,'0')}`;if(s<=0){clearInterval(t);locked=false;attempts=0;document.getElementById('locked').classList.remove('show');document.getElementById('loginForm').style.display='block';document.getElementById('attemptsTxt').classList.remove('show');hideErr();}},1000);
+  }
+  function showErr(msg){document.getElementById('errTxt').textContent=msg;document.getElementById('errBox').classList.add('show');}
+  function hideErr(){document.getElementById('errBox').classList.remove('show');}
+  function togglePwd(){const i=document.getElementById('password');const b=document.getElementById('eyeBtn');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁':'🙈';}
+  function forgotPwd(){showErr('Contact your system administrator to reset your password.');}
+  document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
