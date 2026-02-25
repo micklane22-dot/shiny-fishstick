@@ -19,6 +19,12 @@
     .left-hero h1{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;line-height:1.1;margin-bottom:1.5rem;}
     .left-hero h1 em{font-style:italic;color:var(--gold);}
     .left-hero p{font-size:0.88rem;color:var(--muted);line-height:1.9;max-width:360px;font-weight:300;}
+    .roles-info{margin-top:2.5rem;display:flex;flex-direction:column;gap:0.8rem;position:relative;z-index:1;}
+    .role-item{display:flex;align-items:center;gap:1rem;padding:0.8rem 1rem;border:1px solid var(--border);}
+    .role-badge{font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;font-weight:600;}
+    .role-badge.super{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);}
+    .role-badge.admin{background:rgba(76,175,137,0.1);color:var(--green);border:1px solid rgba(76,175,137,0.2);}
+    .role-desc{font-size:0.75rem;color:var(--muted);}
     .left-stats{display:flex;gap:3rem;position:relative;z-index:1;}
     .ls-item .num{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);font-weight:600;}
     .ls-item .lbl{font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
@@ -53,8 +59,9 @@
     .submit-btn.loading .btn-txt{opacity:0;}
     .submit-btn.loading .spinner{display:block;}
     @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-    .hint{margin-top:1.5rem;background:rgba(201,168,76,0.05);border:1px solid var(--border);padding:1rem;font-size:0.75rem;color:var(--muted);line-height:1.8;letter-spacing:0.5px;}
+    .hint{margin-top:1.5rem;background:rgba(201,168,76,0.05);border:1px solid var(--border);padding:1rem;font-size:0.75rem;color:var(--muted);line-height:2;letter-spacing:0.5px;}
     .hint strong{color:var(--gold);}
+    .hint .divider{border-top:1px solid var(--border);margin:0.6rem 0;}
     .attempts-txt{text-align:center;font-size:0.72rem;color:var(--muted);margin-top:0.7rem;letter-spacing:1px;display:none;}
     .attempts-txt.show{display:block;}
     .locked{display:none;text-align:center;padding:1rem 0;}
@@ -68,13 +75,25 @@
   </style>
 </head>
 <body>
+
 <div class="left">
   <div class="left-bg"></div><div class="left-grid"></div>
   <div class="left-content">
     <div><span class="brand">AURUM CAPITAL</span><span class="brand-sub">Investment Group</span></div>
     <div class="left-hero">
-      <h1>Manage Your<br/><em>Empire</em><br/>From Here</h1>
-      <p>Access the full suite of portfolio management, client oversight, and reporting tools — all in one secure dashboard.</p>
+      <h1>Secure <em>Access</em><br/>Control</h1>
+      <p>Different roles have different levels of access to protect your data and operations.</p>
+    </div>
+    <div class="roles-info">
+      <div style="font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Access Levels</div>
+      <div class="role-item">
+        <span class="role-badge super">👑 Super Admin</span>
+        <span class="role-desc">Full access — clients, inquiries, settings, passwords</span>
+      </div>
+      <div class="role-item">
+        <span class="role-badge admin">🔑 Admin</span>
+        <span class="role-desc">View clients & inquiries only — no settings access</span>
+      </div>
     </div>
   </div>
   <div>
@@ -92,12 +111,14 @@
     <h2>Admin Access</h2>
     <p>Authorized Personnel Only</p>
     <div class="gold-line"></div>
+
     <div class="locked" id="locked">
       <div class="lock-ico">🔒</div>
       <div class="lock-title">Access Locked</div>
       <div class="lock-msg">Too many failed attempts.<br/>Please wait before trying again.</div>
       <div class="countdown" id="countdown">0:30</div>
     </div>
+
     <div id="loginForm">
       <div class="err-box" id="errBox">⚠ &nbsp;<span id="errTxt">Invalid credentials.</span></div>
       <div class="fg">
@@ -124,63 +145,100 @@
         <span class="spinner"></span>
       </button>
       <div class="attempts-txt" id="attemptsTxt"></div>
-      <div class="hint">Default credentials —<br/>Username: <strong>admin</strong> &nbsp;·&nbsp; Password: <strong>admin123</strong><br/><span style="font-size:0.68rem;">Change these in Settings after first login.</span></div>
+      <div class="hint">
+        <strong>👑 Super Admin</strong><br/>
+        Username: <strong>superadmin</strong> &nbsp;·&nbsp; Password: <strong>super123</strong>
+        <div class="divider"></div>
+        <strong>🔑 Admin</strong><br/>
+        Username: <strong>admin</strong> &nbsp;·&nbsp; Password: <strong>admin123</strong>
+        <div class="divider"></div>
+        <span style="font-size:0.68rem;">Change passwords in Settings after first login.</span>
+      </div>
     </div>
     <div class="login-footer">Secure 256-bit encrypted connection<br/>Unauthorized access is prohibited and monitored</div>
   </div>
 </div>
 
 <script>
-  const USER='admin',PASS='admin123',MAX=3,LOCK=30;
-  let attempts=0,locked=false;
-  window.onload=()=>{const s=localStorage.getItem('aurumUser');if(s){document.getElementById('username').value=s;document.getElementById('remember').checked=true;}};
-  function doLogin(){
-    if(locked)return;
-    const u=document.getElementById('username').value.trim();
-    const p=document.getElementById('password').value;
-    const btn=document.getElementById('loginBtn');
+  // USERS — username: [password, role]
+  const USERS = {
+    'superadmin': { password: 'super123',  role: 'superadmin', name: 'Super Admin' },
+    'admin':      { password: 'admin123',  role: 'admin',      name: 'Admin' },
+  };
+
+  const MAX = 3, LOCK = 30;
+  let attempts = 0, locked = false;
+
+  window.onload = () => {
+    const s = localStorage.getItem('aurumUser');
+    if (s) { document.getElementById('username').value = s; document.getElementById('remember').checked = true; }
+  };
+
+  function doLogin() {
+    if (locked) return;
+    const u   = document.getElementById('username').value.trim();
+    const p   = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
     hideErr();
     document.getElementById('username').classList.remove('err');
     document.getElementById('password').classList.remove('err');
-    if(!u){document.getElementById('username').classList.add('err');showErr('Please enter your username.');return;}
-    if(!p){document.getElementById('password').classList.add('err');showErr('Please enter your password.');return;}
+    if (!u) { document.getElementById('username').classList.add('err'); showErr('Please enter your username.'); return; }
+    if (!p) { document.getElementById('password').classList.add('err'); showErr('Please enter your password.'); return; }
     btn.classList.add('loading');
-    setTimeout(()=>{
+    setTimeout(() => {
       btn.classList.remove('loading');
-      if(u===USER&&p===PASS){
-        if(document.getElementById('remember').checked){localStorage.setItem('aurumUser',u);}else{localStorage.removeItem('aurumUser');}
-        sessionStorage.setItem('aurumAdmin','true');
-        btn.querySelector('.btn-txt').textContent='✦ ACCESS GRANTED';
-        btn.style.background='var(--green)';
-        setTimeout(()=>{window.location.href='admin.html';},900);
-      }else{
+      const user = USERS[u];
+      if (user && user.password === p) {
+        if (document.getElementById('remember').checked) { localStorage.setItem('aurumUser', u); }
+        else { localStorage.removeItem('aurumUser'); }
+        // Save role and name to session
+        sessionStorage.setItem('aurumAdmin', 'true');
+        sessionStorage.setItem('aurumRole', user.role);
+        sessionStorage.setItem('aurumName', user.name);
+        btn.querySelector('.btn-txt').textContent = '✦ ACCESS GRANTED';
+        btn.style.background = '#4caf89';
+        setTimeout(() => { window.location.href = 'admin.html'; }, 900);
+      } else {
         attempts++;
         document.getElementById('username').classList.add('err');
         document.getElementById('password').classList.add('err');
-        document.getElementById('password').value='';
-        const rem=MAX-attempts;
-        if(attempts>=MAX){lockout();}else{
+        document.getElementById('password').value = '';
+        const rem = MAX - attempts;
+        if (attempts >= MAX) { lockout(); }
+        else {
           showErr('Incorrect username or password.');
-          const el=document.getElementById('attemptsTxt');
+          const el = document.getElementById('attemptsTxt');
           el.classList.add('show');
-          el.textContent=`${rem} attempt${rem!==1?'s':''} remaining before lockout`;
+          el.textContent = `${rem} attempt${rem !== 1 ? 's' : ''} remaining before lockout`;
         }
       }
-    },1200);
+    }, 1200);
   }
-  function lockout(){
-    locked=true;
-    document.getElementById('loginForm').style.display='none';
+
+  function lockout() {
+    locked = true;
+    document.getElementById('loginForm').style.display = 'none';
     document.getElementById('locked').classList.add('show');
-    let s=LOCK;
-    const el=document.getElementById('countdown');
-    const t=setInterval(()=>{s--;el.textContent=`0:${s.toString().padStart(2,'0')}`;if(s<=0){clearInterval(t);locked=false;attempts=0;document.getElementById('locked').classList.remove('show');document.getElementById('loginForm').style.display='block';document.getElementById('attemptsTxt').classList.remove('show');hideErr();}},1000);
+    let s = LOCK;
+    const el = document.getElementById('countdown');
+    const t = setInterval(() => {
+      s--;
+      el.textContent = `0:${s.toString().padStart(2, '0')}`;
+      if (s <= 0) {
+        clearInterval(t); locked = false; attempts = 0;
+        document.getElementById('locked').classList.remove('show');
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('attemptsTxt').classList.remove('show');
+        hideErr();
+      }
+    }, 1000);
   }
-  function showErr(msg){document.getElementById('errTxt').textContent=msg;document.getElementById('errBox').classList.add('show');}
-  function hideErr(){document.getElementById('errBox').classList.remove('show');}
-  function togglePwd(){const i=document.getElementById('password');const b=document.getElementById('eyeBtn');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁':'🙈';}
-  function forgotPwd(){showErr('Contact your system administrator to reset your password.');}
-  document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+  function showErr(msg) { document.getElementById('errTxt').textContent = msg; document.getElementById('errBox').classList.add('show'); }
+  function hideErr()     { document.getElementById('errBox').classList.remove('show'); }
+  function togglePwd()   { const i = document.getElementById('password'); const b = document.getElementById('eyeBtn'); i.type = i.type === 'password' ? 'text' : 'password'; b.textContent = i.type === 'password' ? '👁' : '🙈'; }
+  function forgotPwd()   { showErr('Contact your system administrator to reset your password.'); }
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 </script>
 </body>
 </html>
